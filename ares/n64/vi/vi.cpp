@@ -99,10 +99,11 @@ auto VI::refresh() -> void {
       screen->setViewport(0, 0, width, height);
       for(u32 y : range(height)) {
         u32 y_fix = y; 
-        // When weave interlacing is active, we need to fix the order of interleaved lines for the image output
-        // but only when the VI is set to interlance and we don't use supersampling (causes severe bugs)
+        // When weave deinterlacing is active, we need to fix the order of interleaved lines for the image output
+        // but only when the VI is set to interlace and we don't use supersampling (causes severe bugs)
         // Otherwise proceed as normal
-        if(io.serrate == 1 && vulkan.weaveDeinterlacing && !vulkan.supersampleScanout) y_fix = (y % 2 == 0)? y+1 : y-1; // Swap each even/odd line
+        if(io.serrate == 1 && vi.serrate == 1 && vulkan.weaveDeinterlacing && !vulkan.supersampleScanout) 
+          y_fix = (y % 2 == 0)? y+1 : y-1; // Swap each even/odd line
         auto source = rgba + width * y_fix * sizeof(u32);
         auto target = screen->pixels(1).data() + y * vulkan.outputUpscale * 640;
         for(u32 x : range(width)) {
